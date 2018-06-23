@@ -1,28 +1,45 @@
 const express = require('express');
-const config = require('./config');
+const CONFIG = require('./config/config');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
+// ==============================
+//  Rutas 
+// ==============================
+const appRoutes = require('./routes/app');
+const userRoutes = require('./routes/user');
+const loginRoutes = require('./routes/login');
 
-/* ----- ----- INICIALIZAR VARIABLES ----- ----- */
+// ==============================
+//  Inicializar variables 
+// ==============================
 var app = express();
 
+// ==============================
+//  Middlewares 
+// ==============================
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-/* ----- ----- RUTAS ----- ----- */
-app.get('/', (req, res, next) => {
-    console.log(req);
-    res.status(200).json({
-        ok: true,
-        mensaje: "Peticion correcta"
-    });
+// ==============================
+//  Rutas 
+// ==============================
+app.use('/user', userRoutes);
+app.use('/login', loginRoutes);
+
+app.use('/', appRoutes);
+
+// ==============================
+//  Connect database 
+// ==============================
+mongoose.connection.openUri(`${CONFIG.db.host}:${CONFIG.db.port}/${CONFIG.db.name}`, (err, res) => {
+    if (err) throw err;
+    console.log(`Conectado a a base de datos ${CONFIG.db.name} en el puerto \x1b[32m%s\x1b[0m`, `${CONFIG.db.port}`);
 });
 
-/* ----- ----- CONEXION BASE DE DATOS ----- ----- */
-mongoose.connection.openUri(`${config.db.host}:${config.db.port}/${config.db.name}`, (err, res) => {
-    if (err) throw err;
-    console.log(`Conectado a a base de datos ${config.db.name} en el puerto \x1b[32m%s\x1b[0m`, `${config.db.port}`);
-})
-
-/* ----- ----- LISTEN ----- ----- */
-app.listen(config.app.port, () => {
-    console.log(`Express Server running on port ${config.app.port} \x1b[32m%s\x1b[0m`, 'ONLINE');
+// ==============================
+//  Listen app 
+// ==============================
+app.listen(CONFIG.app.port, () => {
+    console.log(`Express Server running on port ${CONFIG.app.port} \x1b[32m%s\x1b[0m`, 'ONLINE');
 });
