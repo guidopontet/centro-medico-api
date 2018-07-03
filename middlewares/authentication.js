@@ -15,8 +15,7 @@ module.exports.tokenAuth = (req, res, next) => {
                 err
             });
         }
-
-        req.user = decoded;
+        req.user = decoded.user;
 
         next();
     });

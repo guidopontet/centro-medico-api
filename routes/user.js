@@ -3,24 +3,38 @@ const app = express();
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const mdAuth = require('../middlewares/authentication');
+const items_per_page = require('../config/config').item_per_page;
+
 
 // ==============================
 //  Obtener usuarios 
 // ==============================
-app.get('/', (req, res) => {
-    User.find({}, '-password')
-        .exec(
-            (err, users) => {
+app.get('/:page?', (req, res) => {
+    
+    let page = Number(req.params.page || 1);
+
+    User.paginate({}, { page: page, limit: items_per_page }, (err, data) => {
                 if (err) {
-                    return res.status(500).send({
+                    return res.status(500).json({
                         ok: false,
                         msg: 'Error buscando usuarios',
                         err
                     });
                 }
+
+                if(page > data.pages){
+                    return res.status(400).json({
+                        ok: false,
+                        msg: 'No existen más usuarios'
+                    });
+                }
+
                 res.status(200).json({
                     ok: true,
-                    users
+                    users: data.docs,
+                    page: data.page,
+                    pages: data.pages,
+                    total: data.total
                 });
             }
         );
@@ -41,7 +55,7 @@ app.post('/', mdAuth.tokenAuth, (req, res) => {
 
     user.save( (err, userSaved) => {
         if (err) {
-            return res.status(400).send({
+            return res.status(400).json({
                 ok: false,
                 msg: 'Error al guardar usuario',
                 err
@@ -65,7 +79,7 @@ app.put('/:userId', mdAuth.tokenAuth ,(req,res) => {
 
     User.findById(userId, (err, user) => {
         if (err) {
-            return res.status(500).send({
+            return res.status(500).json({
                 ok: false,
                 msg: 'Error al recuperar usuario',
                 err
@@ -84,7 +98,7 @@ app.put('/:userId', mdAuth.tokenAuth ,(req,res) => {
 
         user.save( (err, userSaved) => {
             if (err) {
-                return res.status(400).send({
+                return res.status(400).json({
                     ok: false,
                     msg: 'Error al actualizar usuario',
                     err
@@ -107,7 +121,7 @@ app.delete('/:userId', mdAuth.tokenAuth, (req, res) => {
 
     User.findByIdAndRemove( userId, (err, userDeleted) => {
         if (err) {
-            return res.status(500).send({
+            return res.status(500).json({
                 ok: false,
                 msg: 'Error al eliminar usuario',
                 err

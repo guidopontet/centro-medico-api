@@ -9,6 +9,11 @@ const bodyParser = require('body-parser');
 const appRoutes = require('./routes/app');
 const userRoutes = require('./routes/user');
 const loginRoutes = require('./routes/login');
+const hospitalRoutes = require('./routes/hospital');
+const doctorRoutes = require('./routes/doctor');
+const searchRoutes = require('./routes/search');
+const uploadRoutes = require('./routes/upload');
+const imgRoutes = require('./routes/img');
 
 // ==============================
 //  Inicializar variables 
@@ -25,7 +30,12 @@ app.use(bodyParser.json());
 //  Rutas 
 // ==============================
 app.use('/user', userRoutes);
+app.use('/hospital', hospitalRoutes);
 app.use('/login', loginRoutes);
+app.use('/doctor', doctorRoutes);
+app.use('/search', searchRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/img', imgRoutes);
 
 app.use('/', appRoutes);
 
