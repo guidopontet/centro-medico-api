@@ -43,7 +43,7 @@ app.get('/:page?', (req, res) => {
 // ==============================
 //  Crear usuarios 
 // ==============================
-app.post('/', mdAuth.tokenAuth, (req, res) => {
+app.post('/', (req, res) => {
     let body = req.body;
     let user = new User({
         name: body.name,
